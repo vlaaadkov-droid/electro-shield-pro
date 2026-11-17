@@ -1,0 +1,26 @@
+{
+  "name": "ЭлектроЩит",
+  "short_name": "ЭлектроЩит",
+  "description": "Инженерный калькулятор кабельных линий и конструктор электрощитов по ПУЭ 7",
+  "lang": "ru",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#D32F2F",
+  "background_color": "#121316",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192' width='192' height='192'%3E%3Crect width='192' height='192' rx='38' fill='%23121316'/%3E%3Crect x='14' y='14' width='164' height='164' rx='28' fill='%231C1E24' stroke='%23D32F2F' stroke-width='6'/%3E%3Cpath d='M108 36L56 104h38l-10 52 52-68H98l10-52z' fill='%23D32F2F'/%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512' width='512' height='512'%3E%3Crect width='512' height='512' rx='96' fill='%23121316'/%3E%3Crect x='36' y='36' width='440' height='440' rx='72' fill='%231C1E24' stroke='%23D32F2F' stroke-width='14'/%3E%3Cpath d='M288 96L148 278h102l-26 138 140-182H262l26-138z' fill='%23D32F2F'/%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "name": "electro-shield",
+  "version": "1.0.0",
+  "description": "PWA-приложение «ЭлектроЩит» — калькулятор линий и конструктор электрощитов",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.js"
+  }
+}

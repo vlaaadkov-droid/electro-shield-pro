@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#D32F2F" />
+  <title>ЭлектроЩит — Калькулятор линий и конструктор щитов</title>
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='38' fill='%23121316'/%3E%3Crect x='14' y='14' width='164' height='164' rx='28' fill='%231C1E24' stroke='%23D32F2F' stroke-width='6'/%3E%3Cpath d='M108 36L56 104h38l-10 52 52-68H98l10-52z' fill='%23D32F2F'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-brand">
+      <span class="brand-badge">ЭЩ</span>
+      <div>
+        <h1 class="app-title">ЭлектроЩит</h1>
+        <p class="app-subtitle">Инженерный расчёт по ПУЭ 7</p>
+      </div>
+    </div>
+    <span id="line-status-pill" class="status-pill status-ok">НОРМА</span>
+  </header>
+
+  <main class="app-main">
+    <!-- ВКЛАДКА 1: РАСЧЁТ ОДИНОЧНОЙ ЛИНИИ -->
+    <section id="tab-calculator" class="tab-panel active" aria-label="Расчёт линии">
+      <!-- Карточка параметров ввода (статический DOM для сохранения фокуса клавиатуры) -->
+      <div class="card">
+        <h2 class="card-title">Параметры нагрузки и линии</h2>
+
+        <div class="form-grid">
+          <div class="form-group form-group-full">
+            <label for="input-load-type">Тип нагрузки и сеть</label>
+            <select id="input-load-type" class="control">
+              <option value="1f_active">1ф 220В — Активная / Бытовая (cosφ = 0.98)</option>
+              <option value="1f_motor">1ф 220В — Двигатель / Насос (cosφ = 0.80)</option>
+              <option value="3f_motor">3ф 380В — Асинхронный двигатель (cosφ = 0.85)</option>
+              <option value="3f_active">3ф 380В — ТЭН / Нагрев (cosφ = 0.99)</option>
+              <option value="vfd_1f">ПЧ (вход 1ф 220В → выход 3ф 220В)</option>
+              <option value="24dc">Цепь 24В DC (ПЛК, реле, клапаны)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label id="label-power" for="input-power">Мощность, кВт</label>
+            <input
+              id="input-power"
+              type="number"
+              inputmode="decimal"
+              step="0.1"
+              min="0.01"
+              value="2.0"
+              class="control tabular-nums"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="input-length">Длина линии, м</label>
+            <input
+              id="input-length"
+              type="number"
+              inputmode="decimal"
+              step="1"
+              min="1"
+              value="25"
+              class="control tabular-nums"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="input-material">Материал жил</label>
+            <select id="input-material" class="control">
+              <option value="Cu">Медь (Cu)</option>
+              <option value="Al">Алюминий (Al)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="input-installation">Способ прокладки</label>
+            <select id="input-installation" class="control">
+              <option value="pipe">В трубе / коробе</option>
+              <option value="open">Открыто</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="input-cosphi">Коэффициент cosφ</label>
+            <input
+              id="input-cosphi"
+              type="number"
+              inputmode="decimal"
+              step="0.01"
+              min="0.3"
+              max="1.0"
+              value="0.95"
+              class="control tabular-nums"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="input-curve">Характеристика АВ</label>
+            <select id="input-curve" class="control">
+              <option value="B">Кривая B (3–5 In)</option>
+              <option value="C" selected>Кривая C (5–10 In)</option>
+              <option value="D">Кривая D (10–20 In)</option>
+              <option value="АЗД">АЗД (14 In)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Карточка результата расчёта (обновляется точечно через innerText) -->
+      <div id="result-card" class="card result-card status-ok">
+        <div class="result-header">
+          <h2 class="card-title">Результат расчёта линии</h2>
+          <span id="res-verdict-badge" class="status-pill status-ok">НОРМА</span>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric-box">
+            <span class="metric-label">Расчётный ток I<sub>р</sub></span>
+            <div class="metric-value tabular-nums">
+              <span id="res-current">0.00</span>
+              <small>А</small>
+            </div>
+          </div>
+
+          <div class="metric-box">
+            <span class="metric-label">Автомат защиты I<sub>n</sub></span>
+            <div class="metric-value tabular-nums">
+              <span id="res-breaker">C10</span>
+              <small>А</small>
+            </div>
+          </div>
+
+          <div class="metric-box">
+            <span class="metric-label">Сечение кабеля S / PE</span>
+            <div class="metric-value tabular-nums">
+              <span id="res-section">1.5 / 1.5</span>
+              <small>мм²</small>
+            </div>
+          </div>
+
+          <div class="metric-box">
+            <span class="metric-label">Допустимый ток I<sub>доп</sub></span>
+            <div class="metric-value tabular-nums">
+              <span id="res-allowable">19</span>
+              <small>А</small>
+            </div>
+          </div>
+
+          <div class="metric-box">
+            <span class="metric-label">Падение ΔU</span>
+            <div class="metric-value tabular-nums">
+              <span id="res-vdrop-percent">0.00</span>
+              <small>% (<span id="res-vdrop-volts">0.00</span> В)</small>
+            </div>
+          </div>
+
+          <div class="metric-box">
+            <span class="metric-label">Мин. ток КЗ I<sub>кз</sub></span>
+            <div class="metric-value tabular-nums">
+              <span id="res-ikz">0.00</span>
+              <small>А</small>
+            </div>
+          </div>
+        </div>
+
+        <div id="res-messages" class="verdict-messages">
+          <p id="res-summary-text" class="verdict-line">Все параметры линии соответствуют требованиям ПУЭ.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ВКЛАДКА 2: КОНСТРУКТОР ЩИТА (каркас для следующих этапов) -->
+    <section id="tab-shield" class="tab-panel" aria-label="Конструктор щита" hidden>
+      <div class="card">
+        <h2 class="card-title">Конструктор электрощита</h2>
+        <p class="muted-text">Раздел сборки групп и линий щита.</p>
+      </div>
+    </section>
+
+    <!-- ВКЛАДКА 3: АУДИТ И СПЕЦИФИКАЦИЯ (каркас для следующих этапов) -->
+    <section id="tab-audit" class="tab-panel" aria-label="Аудит щита" hidden>
+      <div class="card">
+        <h2 class="card-title">Аудит и проверка ПУЭ</h2>
+        <p class="muted-text">Сводка проверок селективности, токов КЗ и баланса мощностей.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- Нижняя навигация на 3 вкладки с учётом safe-area -->
+  <nav class="bottom-nav" aria-label="Основная навигация">
+    <button type="button" class="nav-btn active" data-tab="calculator">
+      <span class="nav-icon">⚡</span>
+      <span class="nav-label">Линия</span>
+    </button>
+    <button type="button" class="nav-btn" data-tab="shield">
+      <span class="nav-icon">🧰</span>
+      <span class="nav-label">Щит</span>
+    </button>
+    <button type="button" class="nav-btn" data-tab="audit">
+      <span class="nav-icon">🛡️</span>
+      <span class="nav-label">Аудит</span>
+    </button>
+  </nav>
+
+  <script type="module" src="./src/app.js"></script>
+</body>
+</html>
